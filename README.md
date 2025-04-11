@@ -1,3 +1,99 @@
+
+📘 Wrangler Enhancement: Byte Size and Time Duration Units
+This enhancement introduces native support for BYTE_SIZE and TIME_DURATION parsing in the CDAP Wrangler library. It also adds a new directive aggregate-stats for performing byte size and time duration aggregations directly within recipes.
+
+🔧 Features Added
+✅ New Token Parsers:
+BYTE_SIZE parser for values like 10KB, 1.5MB, 2GB
+
+TIME_DURATION parser for values like 500ms, 2.3s, 1m
+
+Each parser supports:
+
+Unit normalization (e.g., KB → Bytes, ms → nanoseconds)
+
+Case-insensitive inputs (e.g., kb, KB, Mb)
+
+✅ New Directive: aggregate-stats
+This directive allows aggregating size and time values in recipes.
+
+Usage:
+wrangler
+Copy
+Edit
+aggregate-stats :data_transfer_size :response_time total_size_mb total_time_sec
+Arguments:
+source_size_column – column with byte size values (e.g., "5MB", "800KB")
+
+source_time_column – column with duration values (e.g., "250ms", "1.5s")
+
+target_size_column – name for output size column (e.g., total_size_mb)
+
+target_time_column – name for output time column (e.g., total_time_sec)
+
+Optional (not required but possible to extend):
+Output units (e.g., GB, minutes)
+
+Aggregation type (total, average, etc.)
+
+📁 Modified Files
+Directives.g4 – added lexer/parser rules for BYTE_SIZE and TIME_DURATION
+
+ByteSize.java, TimeDuration.java – new parser token classes
+
+AggregateStats.java – new directive implementation
+
+Unit tests for:
+
+Byte size & time parsing
+
+Recipe execution via TestingRig
+
+✅ Example Test Case
+Input data:
+
+json
+Copy
+Edit
+[
+  { "data_transfer_size": "1MB", "response_time": "500ms" },
+  { "data_transfer_size": "2MB", "response_time": "1500ms" }
+]
+Recipe:
+
+java
+Copy
+Edit
+aggregate-stats :data_transfer_size :response_time total_size_mb total_time_sec
+Output:
+
+json
+Copy
+Edit
+[
+  { "total_size_mb": 3.0, "total_time_sec": 2.0 }
+]
+🧪 Build and Test
+Build the project:
+
+bash
+Copy
+Edit
+mvn clean install
+Run all tests:
+
+bash
+Copy
+Edit
+mvn test
+✅ Tests include:
+
+Unit tests for ByteSize and TimeDuration parsing
+
+End-to-end validation of the aggregate-stats directive
+
+🤖 AI Tool Usage
+See prompts.txt in this repo for all AI tool prompts and summaries used during development.
 # Data Prep
 
 ![cm-available](https://cdap-users.herokuapp.com/assets/cm-available.svg)
